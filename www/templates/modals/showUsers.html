@@ -1,0 +1,16 @@
+<div class="bar bar-header bar-light">
+    <button class="button button-clear button-icon ion-trash-b button-assertive" ng-show="userEditMode" ng-click="removeUsers()"></button>
+    <h1 class="title"><span ng-show="userEditMode">Remove users</span><span ng-hide="userEditMode">User List</span></h1>
+    <button class="button button-clear button-positive" ng-click="toggelUserDeleteMode()">
+        <i class="icon ion-toggle" ng-hide="userEditMode"></i>
+        <i class="icon ion-toggle-filled" ng-show="userEditMode"></i>
+    </button>
+</div>
+<div class="list">
+    <label class="item item-checkbox noBorder" ng-repeat="user in userList">
+        <label class="checkbox" ng-show="userEditMode && rootUser != user">
+            <input type="checkbox" ng-model="deleteList[user]">
+        </label>
+        {{ user }} <span class="badge badge-dark" ng-show="rootUser == user">you</span>
+    </label>
+</div>

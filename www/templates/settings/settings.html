@@ -1,0 +1,16 @@
+<ion-view>
+    <ion-header-bar class="bar bar-stable noBorder">
+    </ion-header-bar>
+    <ion-content>
+        <div class="list">
+            <div class="item item-divider item-icon-left">
+                <i class="icon ion-ios-people"></i>Add remove users
+            </div>
+            <a class="item" ng-click="showUsers()">Show Users<span class="badge badge-dark">{{userList.length}}</span></a>
+            <a class="item" ng-click="addUsers()">Add Users</a>
+            <div class="item item-divider">                
+            </div>
+            <a class="item item-icon-left assertive" ng-click="clearAllData()"><i class="icon ion-trash-a"></i> Clear DB</a>
+        </div>
+    </ion-content>
+</ion-view>

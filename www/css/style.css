@@ -1,0 +1,53 @@
+/* Empty. Add your own CSS if you like */
+
+@font-face {
+    font-family: 'Bree';
+    src: url('../fonts/BreeSerif-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Roberto Bold';
+    src: url('../fonts/RobotoSlab-Bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Roberto Light';
+    src: url('../fonts/RobotoSlab-Light.ttf') format('truetype');
+}
+
+.bree {
+    font-family: 'Bree';
+}
+
+.rob_bold {
+    font-family: 'Roberto Bold';
+}
+
+.rob_light {
+    font-family: 'Roberto Light';
+}
+
+.search_box {
+    -webkit-box-shadow: 10px 10px 30px -12px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 10px 10px 30px -12px rgba(0, 0, 0, 0.75);
+    box-shadow: 10px 10px 30px -12px rgba(0, 0, 0, 0.75);
+    border-radius: 0px 0px 0px 0px;
+    -moz-border-radius: 0px 0px 0px 0px;
+    -webkit-border-radius: 0px 0px 0px 0px;
+    background-color: rgba(239, 239, 239, 0.51);
+}
+
+.noBorder {
+    border: none;
+}
+
+.dropShadow{
+    border-bottom: 1px solid rgba(239, 239, 239, 0.75);
+    -webkit-box-shadow: 5px 5px 30px -12px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 5px 5px 30px -12px rgba(0, 0, 0, 0.75);
+    box-shadow: 5px 5px 30px -12px rgba(0, 0, 0, 0.75);
+}
+
+.dashlist{
+    padding: 2px;
+}

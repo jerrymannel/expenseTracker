@@ -1,0 +1,19 @@
+<div class="bar bar-header bar-dark">
+    <h1 class="title"><i class="icon ion-cash"></i> <span class="energized">{{ expenseData.amount }}</span> on <i class="icon ion-android-calendar"></i> {{ expenseData.date | date:'dd MMM' }}</h1>
+</div>
+<div class="card">
+    <div class="item item-text-wrap" ng-show="expenseData.sharers.length > 1">
+        Paid by: <strong>{{ expenseData.paidBy}}</strong> 
+        <span ng-show="expenseData.sharers.length > 1"> and shared with, 
+            <span ng-repeat="sharer in expenseData.sharers"> 
+                <span ng-show="$index != 0"><strong>{{ sharer.username }}</strong> </span>
+            </span>
+        </span>
+    </div>
+    <div class="item item-text-wrap" ng-show="expenseData.sharers.length == 1 && expenseData.paidBy != userName">
+        <strong>{{ expenseData.paidBy}}</strong> paid for this.
+    </div>
+    <div class="item item-text-wrap" ng-show="expenseData.sharers.length == 1 && expenseData.paidBy == userName">
+        <strong>You</strong> paid for this.
+    </div>
+</div>

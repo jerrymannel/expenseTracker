@@ -1,0 +1,56 @@
+<ion-view>
+
+    <ion-header-bar class="bar bar-header item-input-inset">
+        <button class="button button-icon ion-ios-close-empty" ng-click="searchString=''"></button>
+        <label class="item-input-wrapper">
+            <i class="icon ion-search placeholder-icon"></i>
+            <input type="text" placeholder="Search" ng-model="searchString" class="rob_light">
+        </label>
+        <button class="button button-icon ion-ios-plus-empty" ng-click="addExpense()"></button>
+    </ion-header-bar>
+    <ion-header-bar class="bar bar-subheader noBorder dropShadow">
+        <h2 class="title rob_light" ng-class="{'balanced': amount >= 0, 'assertive': amount < 0}"><strong>{{ amount }}</strong></h2>
+        <button class="button button-clear"><span class="badge badge-dark stable">{{userName}}</span>
+        </button>
+    </ion-header-bar>
+
+    <ion-content>
+        <div class="list padding">
+            <div class="item noBorder"></div>
+            <a class="item noBorder dashlist item-divider">
+                <div class="row">
+                    <div class="col-25 bree">
+                        <center><i class="icon ion-ios-calendar-outline"></i>
+                        </center>
+                    </div>
+                    <div class="col-25 rob_light">
+                        <center><i class="icon ion-ios-location"></i>
+                        </center>
+                    </div>
+                    <div class="col-25 rob_dark">
+                        <center><i class="icon ion-cash"></i>
+                        </center>
+                    </div>
+                    <div class="col-25 rob_light">
+                        <center><i class="icon ion-ios-person"></i>
+                        </center>
+                    </div>
+                </div>
+            </a>
+            <a class="item noBorder dashlist" ng-repeat="expense in expenses | filter: searchString" ng-click="showExpenseDetails(expense)">
+                <div class="row">
+                    <div class="col-25 bree">{{ expense.date| date:'dd MMMM' }}</div>
+                    <div class="col-25 rob_light">
+                        <center>{{ expense.location }}</center>
+                    </div>
+                    <div class="col-25 rob_dark">
+                        <center>{{ expense.amount }}</center>
+                    </div>
+                    <div class="col-25 rob_light">
+                        <center>{{ expense.paidBy }}</center>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </ion-content>
+</ion-view>

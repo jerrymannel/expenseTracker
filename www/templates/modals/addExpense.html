@@ -1,0 +1,50 @@
+<ion-modal-view>
+    <ion-header-bar class="bar bar-stable noBorder">
+        <h1 class="title bree">Add Expense</h1>
+        <button class="button button-clear button-large"><span class="badge badge-dark"><span class="energized">{{ expenseData.perhead }}</span></span></button>
+    </ion-header-bar>
+    <ion-content>
+        <div class="list">
+            <label class="item item-input">
+                <span class="input-label rob_bold"><i class="ion ion-cash"></i> Amount</span>
+                <input type="text" ng-model="expenseData.amount" class="rob_light">
+            </label>
+            <label class="item item-input">
+                <span class="input-label rob_bold"><i class="ion ion-ios-calendar"></i> Date</span>
+                <input type="date" ng-model="expenseData.date" class="rob_light">
+            </label>
+            <label class="item item-input">
+                <span class="input-label rob_bold"><i class="ion ion-location"></i> Location</span>
+                <input type="text" ng-model="expenseData.location" class="rob_light">
+            </label>
+            <label class="item item-input item-select" ng-show="expenseData.amount">
+                <span class="input-label rob_bold"><i class="ion ion-ios-person"></i> Paid By</span>
+                <select ng-model="expenseData.paidBy" ng-change="changedWhoPaid()" class="rob_light">
+                    <option ng-repeat="payer in payers">{{ payer }}</option>
+                </select>
+            </label>
+            <div ng-show="expenseData.paidBy && sharers.length > 0">
+                <a class="item item-input" ng-click="selectSplitters()">
+                    <span class="input-label rob_bold"><i class="ion ion-ios-people"></i> Split with <i>(tap to select)</i></span>
+                    <span class="badge badge-dark">{{ expenseData.splitters.length }} people</span> 
+                </a>
+            </div>
+            <div class="item" ng-show="expenseData.paidBy && sharers.length > 0">
+                <span>
+                    <button class="button button-clear button-small button-dark">{{ expenseData.paidBy }}</button>
+                    <span> </span>
+                </span>
+                <span>
+                    <span ng-repeat="splitter in expenseData.splitters">
+                        <button class="button button-clear button-small button-dark">{{ splitter }}</button>
+                        <span> </span>
+                    </span>
+                </span>
+            </div>
+        </div>
+    </ion-content>
+    <ion-footer-bar class="bar bar-stable noBorder">
+        <button class="button button-positive button-large" ng-click="saveExpense(expenseData)">Save</button>
+        <button class="button button-assertive button-large" ng-click="closeAddExpense()">Cancel</button>
+    </ion-footer-bar>
+</ion-modal-view>
