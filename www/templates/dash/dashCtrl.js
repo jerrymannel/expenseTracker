@@ -136,6 +136,8 @@ app.controller('DashCtrl', function ($scope, $ionicModal, $ionicPopup, DB) {
                 expense.splitters.forEach(function (user) {
                     DB.addNewDutchData([transactionId, expense.date, expense.perhead, user]);
                 });
+                
+                DB.updateSettlement("credit", expense.paidBy, expense.amount);
                 updateExpenses();
             }, function (err) {});
         }

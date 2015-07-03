@@ -1,6 +1,6 @@
 app.factory('DB', function ($q, $rootScope, $cordovaSQLite, Toast, $window) {
 
-    var table_names = ['user_table', 'expense_table', 'dutch_table'];
+    var table_names = ['user_table', 'expense_table', 'dutch_table', 'settlement_table'];
 
     var initializeDB = function () {
         var sql = 'CREATE TABLE IF NOT EXISTS user_table(userId INTEGER PRIMARY KEY AUTOINCREMENT, userName, credit)';
@@ -14,6 +14,10 @@ app.factory('DB', function ($q, $rootScope, $cordovaSQLite, Toast, $window) {
         var sql = 'CREATE TABLE IF NOT EXISTS dutch_table(dutchId INTEGER PRIMARY KEY AUTOINCREMENT, transactionId, dutchdate, amount, user)';
         $cordovaSQLite.execute(db, sql).then(function (r) {
             console.log('Dutch DB Initialized');
+        }, catchError);
+        var sql = 'CREATE TABLE IF NOT EXISTS settlement_table(user, debit, credit)';
+        $cordovaSQLite.execute(db, sql).then(function (r) {
+            console.log('Settlements DB Initialized');
         }, catchError);
     }
 
@@ -57,6 +61,21 @@ app.factory('DB', function ($q, $rootScope, $cordovaSQLite, Toast, $window) {
         $cordovaSQLite.execute(db, statement_dutch, data).then(function (resultSet) {
             if (resultSet.rowsAffected != 1) defer.reject();
             else defer.resolve(resultSet.insertId);
+        }, function (e) {
+            catchError(e);
+            defer.reject();
+        });
+        return defer.promise;
+    }
+    
+    var addSettlementData = function (data) {
+        var defer = $q.defer();
+        var statement_settlement = 'INSERT INTO settlement_table (user, debit, credit) VALUES(?, ?, ?)';
+        $cordovaSQLite.execute(db, statement_settlement, data).then(function (resultSet) {
+            if (resultSet.rowsAffected != 1) defer.reject();
+            else defer.resolve(resultSet.insertId);
+            
+            console.log("Settlement inserted " + resultSet.insertId);
         }, function (e) {
             catchError(e);
             defer.reject();
@@ -144,7 +163,12 @@ app.factory('DB', function ($q, $rootScope, $cordovaSQLite, Toast, $window) {
 
     var getDutchDetails = function (transId) {
         var defer = $q.defer();
-        var statement = "SELECT * FROM dutch_table WHERE transactionId = " + transId;
+        
+        if(transId != '')
+            var statement = "SELECT * FROM dutch_table WHERE transactionId = " + transId;
+        else
+            var statement = "SELECT * FROM dutch_table";
+        
         $cordovaSQLite.execute(db, statement).then(function (r) {
             var splitters = [];
             if (r.rows.length > 0) {
@@ -153,7 +177,8 @@ app.factory('DB', function ($q, $rootScope, $cordovaSQLite, Toast, $window) {
                 while (i < r.rows.length) {
                     splitters.push({
                         username: r.rows.item(i).user,
-                        amount: r.rows.item(i).amount
+                        amount: r.rows.item(i).amount,
+                        transid: r.rows.item(i).transactionId
                     });
                     i++;
                 }
@@ -165,6 +190,189 @@ app.factory('DB', function ($q, $rootScope, $cordovaSQLite, Toast, $window) {
         });
         return defer.promise;
     }
+    
+    var getSettlementData = function(user){
+        var defer = $q.defer();
+        if(user)
+            var stmnt = "SELECT * FROM settlement_table WHERE user = '" + user +"'";
+        else
+            var stmnt = "SELECT * FROM settlement_table";
+        $cordovaSQLite.execute(db, stmnt).then(function (r) {
+            if (r.rows.length > 0) {
+                console.info('Number of rows retrieved :: ' + r.rows.length);
+                var i = 0;
+                var data = [];
+                while (i < r.rows.length) {
+                    data.push({
+                        username: r.rows.item(i).user,
+                        credit: r.rows.item(i).credit,
+                        debit: r.rows.item(i).debit
+                    });
+                    i++;
+                }
+                defer.resolve(data);
+            }
+        }, function (e) {
+            catchError(e);
+            defer.reject();
+        });
+        return defer.promise;
+    };
+    
+    var updateSettlement = function (col, user, amount) {
+        var defer = $q.defer();
+        var amount = amount;
+        
+        var stmnt = "SELECT '"+col+"' FROM settlement_table WHERE user = '" + user + "'";
+        $cordovaSQLite.execute(db, stmnt).then(function (data) {
+            if(data.rows.length > 0){
+                var amount = amount + data.rows.item(0).col;
+                var statement_expense = "UPDATE OR FAIL settlement_table SET '"+col+"' = " + amount + " WHERE user = '" + user + "'";
+                $cordovaSQLite.execute(db, statement_expense).then(function (resultSet) {
+                    if (resultSet.rowsAffected != 1){
+                        defer.reject();
+                    }else{
+                        defer.resolve(data.id);
+                        console.log("Settlement updated");
+                    }
+                }, function (e) {
+                    catchError(e);
+                    defer.reject();
+                });
+            }else{
+                var settle = [];
+                if(col === "credit"){
+                    settle = [user, 0, amount];
+                }else{
+                    settle = [user, amount, 0]; 
+                }
+                addSettlementData(settle);
+            }
+        }, function (e) {
+            catchError(e);
+            defer.reject();
+        });
+        return defer.promise;
+    }
+    var getAllExpense = function(){
+        var defer = $q.defer();
+        var stmnt = "SELECT * FROM user_table";
+        $cordovaSQLite.execute(db, stmnt).then(function (r) {
+            if (r.rows.length > 0) {
+                console.info('Number of rows retrieved :: ' + r.rows.length);
+                var i = 0;
+                var data = [];
+                while (i < r.rows.length) {
+                    data.push({
+                        username: r.rows.item(i).userName,
+                        credit: r.rows.item(i).credit
+                    });
+                    i++;
+                }
+                defer.resolve(data);
+            }
+        }, function (e) {
+            catchError(e);
+            defer.reject();
+        });
+        return defer.promise;
+    };
+    
+    var getDebitPerUser = function(users){
+        var defer = $q.defer();
+        var data = [];
+        users.forEach(function(user){
+            var statement = "SELECT SUM(amount) as debit FROM dutch_table WHERE user = '"+user.username+"'";
+            $cordovaSQLite.execute(db, statement).then(function (r) {
+                if (r.rows.length > 0) {
+                    console.info('Number of rows retrieved :: ' + r.rows.length);
+                    var i = 0;
+                    while (i < r.rows.length) {
+                        data.push({
+                            username: user.username,
+                            credit: user.credit,
+                            debit: r.rows.item(0).debit
+                        });
+                        i++;
+                    }
+                    defer.resolve(data);
+                }
+            }, function (e) {
+                catchError(e);
+                defer.reject();
+            });
+        });
+        
+        return defer.promise;
+    };
+    
+    /*var getExpenseDetails = function(){
+        var defer = $q.defer();
+        var statement = "SELECT expense_table.transactionId, expense_table.transactiondate, expense_table.amount, expense_table.paidBy, expense_table.location, dutch_table.amount AS split, dutch_table.user FROM expense_table INNER JOIN dutch_table ON expense_table.transactionId=dutch_table.transactionId";
+        $cordovaSQLite.execute(db, statement).then(function (r) {
+            console.info('Rows fetched from table' + r.rows.length);
+            if (r.rows.length > 0) {
+                var i = 0;
+                var data = [];
+                while (i < r.rows.length) {
+                    var paidby = r.rows.item(i).paidBy;
+                    var transactionId = r.rows.item(i).transactionId;
+                    var transactiondate = r.rows.item(i).transactiondate;
+                    var amount = r.rows.item(i).amount;
+                    var location = r.rows.item(i).location;
+                    
+                    var temp = 0;
+                    if(data[paidby]){
+                        for(var k=0;k<data[paidby].length;k++){
+                            var paid = data[paidby][k];
+                            if(transactionId === paid.transactionId){
+                                paid.split.push({
+                                    contri: r.rows.item(i).split,
+                                    user: r.rows.item(i).user
+                                });
+                                temp = 0;
+                                break;
+                            }else{
+                                temp = 1;
+                            }
+                        }
+                        if(temp == 1){
+                            data[paidby].push({
+                                transactionId: transactionId,
+                                transactiondate: transactiondate,
+                                amount: amount,
+                                location: location,
+                                split: [{
+                                    contri: r.rows.item(i).split,
+                                    user: r.rows.item(i).user
+                                }]
+                            });
+                        }
+                            
+                    }else{
+                        data[paidby] = [];
+                        data[paidby].push({
+                            transactionId: transactionId,
+                            transactiondate: transactiondate,
+                            amount: amount,
+                            location: location,
+                            split: [{
+                                contri: r.rows.item(i).split,
+                                user: r.rows.item(i).user
+                            }]
+                        });
+                    }
+                    i++;
+                }
+                console.info(JSON.stringify(data));
+                defer.resolve(data);
+            }
+        }, function (e) {
+            catchError(e);
+            defer.reject();
+        });
+        return defer.promise;
+    };*/
     
     var updateExpense = function (data) {
         var defer = $q.defer();
@@ -234,6 +442,12 @@ app.factory('DB', function ($q, $rootScope, $cordovaSQLite, Toast, $window) {
         getDutchDetails: getDutchDetails,
         addNewDutchData: addNewDutchData,
         removeDutchData: removeDutchData,
+        getAllExpense: getAllExpense,
+        getDebitPerUser: getDebitPerUser,
+        /*getExpenseDetails: getExpenseDetails,*/
+        addSettlementData: addSettlementData,
+        getSettlementData: getSettlementData,
+        updateSettlement: updateSettlement,
         setRootUser: function (userName) {
             $window.localStorage['root'] = userName;
         },
