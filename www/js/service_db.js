@@ -19,6 +19,10 @@ app.factory('DB', function ($q, $rootScope, $cordovaSQLite, Toast, $window) {
         $cordovaSQLite.execute(db, sql).then(function (r) {
             console.log('Settlements DB Initialized');
         }, catchError);
+        var sql = 'CREATE TABLE IF NOT EXISTS settlement_history(from, to, amount, date)';
+        $cordovaSQLite.execute(db, sql).then(function (r) {
+            console.log('Settlement History DB Initialized');
+        }, catchError);
     }
 
     var addNewUser = function (data) {
@@ -76,6 +80,21 @@ app.factory('DB', function ($q, $rootScope, $cordovaSQLite, Toast, $window) {
             else defer.resolve(resultSet.insertId);
             
             console.log("Settlement inserted " + resultSet.insertId);
+        }, function (e) {
+            catchError(e);
+            defer.reject();
+        });
+        return defer.promise;
+    }
+    
+    var addSettlementHistory = function (data) {
+        var defer = $q.defer();
+        var statement_settlement = 'INSERT INTO settlement_history (from, to, amount, date) VALUES(?, ?, ?, ?)';
+        $cordovaSQLite.execute(db, statement_settlement, data).then(function (resultSet) {
+            if (resultSet.rowsAffected != 1) defer.reject();
+            else defer.resolve(resultSet.insertId);
+            
+            console.log("Settlement history inserted " + resultSet.insertId);
         }, function (e) {
             catchError(e);
             defer.reject();
@@ -222,11 +241,16 @@ app.factory('DB', function ($q, $rootScope, $cordovaSQLite, Toast, $window) {
     var updateSettlement = function (col, user, amount) {
         var defer = $q.defer();
         var amount = amount;
+        var col = col;
         
-        var stmnt = "SELECT '"+col+"' FROM settlement_table WHERE user = '" + user + "'";
+        var stmnt = "SELECT * FROM settlement_table WHERE user = '" + user + "'";
         $cordovaSQLite.execute(db, stmnt).then(function (data) {
             if(data.rows.length > 0){
-                var amount = amount + data.rows.item(0).col;
+                if(col === "credit")
+                    amount = parseInt(amount) + parseInt(data.rows.item(0).credit);
+                else
+                    amount = parseInt(amount) + parseInt(data.rows.item(0).debit);
+                
                 var statement_expense = "UPDATE OR FAIL settlement_table SET '"+col+"' = " + amount + " WHERE user = '" + user + "'";
                 $cordovaSQLite.execute(db, statement_expense).then(function (resultSet) {
                     if (resultSet.rowsAffected != 1){
@@ -253,7 +277,35 @@ app.factory('DB', function ($q, $rootScope, $cordovaSQLite, Toast, $window) {
             defer.reject();
         });
         return defer.promise;
-    }
+    };
+    
+    var getDataToSettle = function(user){
+        var defer = $q.defer();
+        var statement = "SELECT dutch_table.transactionId, dutch_table.amount, expense_table.paidBy FROM dutch_table INNER JOIN expense_table ON dutch_table.transactionId=expense_table.transactionId WHERE dutch_table.user = '"+user+"'";
+        $cordovaSQLite.execute(db, statement).then(function (r) {
+            if (r.rows.length > 0) {
+                console.info('Number of rows retrieved :: ' + r.rows.length);
+                var i = 0;
+                var data = [];
+                while (i < r.rows.length) {
+                    if(r.rows.item(i).paidBy != user){
+                        data.push({
+                            transactionId: r.rows.item(i).transactionId,
+                            amount: r.rows.item(i).amount,
+                            payTo: r.rows.item(i).paidBy,
+                            from: user
+                        });
+                    }
+                    i++;
+                }
+                defer.resolve(data);
+            }
+        }, function (e) {
+            catchError(e);
+            defer.reject();
+        });
+        return defer.promise;
+    };
     var getAllExpense = function(){
         var defer = $q.defer();
         var stmnt = "SELECT * FROM user_table";
@@ -448,6 +500,8 @@ app.factory('DB', function ($q, $rootScope, $cordovaSQLite, Toast, $window) {
         addSettlementData: addSettlementData,
         getSettlementData: getSettlementData,
         updateSettlement: updateSettlement,
+        getDataToSettle: getDataToSettle,
+        addSettlementHistory: addSettlementHistory,
         setRootUser: function (userName) {
             $window.localStorage['root'] = userName;
         },
