@@ -37,6 +37,31 @@
     background-color: rgba(239, 239, 239, 0.51);
 }
 
+.header-amount {
+    font-family: "Bree";
+    font-size: 2em;
+}
+
+.header-name {
+    font-family: "Roberto Light";
+    font-size: 1em;
+}
+
+.add-expense-button{
+    position: absolute;
+    right: 50px;
+    bottom: 100px;
+    padding: 5px;
+}
+
+.add-expense-button> button{
+    padding: 4px;
+    margin: 0;
+    border-radius: 100px 100px 100px 100px;
+    -moz-border-radius: 100px 100px 100px 100px;
+    -webkit-border-radius: 100px 100px 100px 100px;
+}
+
 .noBorder {
     border: none;
 }

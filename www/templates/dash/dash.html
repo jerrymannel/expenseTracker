@@ -1,21 +1,20 @@
 <ion-view>
-
-    <ion-header-bar class="bar bar-header item-input-inset">
-        <button class="button button-icon ion-ios-close-empty" ng-click="searchString=''"></button>
-        <label class="item-input-wrapper">
-            <i class="icon ion-search placeholder-icon"></i>
-            <input type="text" placeholder="Search" ng-model="searchString" class="rob_light">
-        </label>
-        <button class="button button-icon ion-ios-plus-empty" ng-click="addExpense()"></button>
-    </ion-header-bar>
-    <ion-header-bar class="bar bar-subheader noBorder dropShadow">
-        <h2 class="title rob_light" ng-class="{'balanced': amount >= 0, 'assertive': amount < 0}"><strong>{{ amount }}</strong></h2>
-        <button class="button button-clear"><span class="badge badge-dark stable">{{userName}}</span>
-        </button>
-    </ion-header-bar>
-
     <ion-content>
         <div class="list padding">
+            <div class="item item-icon-left item-icon-right noBorder">
+                <i class="icon ion-card"></i>
+                <span class="header-amount" ng-class="{'balanced': amount >= 0, 'assertive': amount < 0}"><strong>{{ amount }}</strong></span>
+                <span class="icon ion-ios-person-outline header-name">{{userName}}</span>
+            </div>
+
+            <div class="item item-input noBorder">
+                <label class="item-input-wrapper">
+                    <i class="icon ion-search"></i>
+                    <input type="text" ng-model="searchString" class="rob_light">
+                </label>
+                <button class="button button-icon ion-ios-close-empty" ng-click="searchString=''"></button>
+            </div>
+
             <div class="item noBorder"></div>
             <a class="item noBorder dashlist item-divider">
                 <div class="row">
@@ -53,4 +52,9 @@
             </a>
         </div>
     </ion-content>
+    <div class="add-expense-button">
+        <button class="button button-assertive dropShadow" ng-click="addExpense()">
+            <i class="icon ion-cash"></i>
+        </button>
+    </div>
 </ion-view>
