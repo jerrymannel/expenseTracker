@@ -135,7 +135,10 @@ app.controller('DashCtrl', function ($scope, $ionicModal, $ionicPopup, DB) {
                 DB.addNewDutchData([transactionId, expense.date, expense.perhead, expense.paidBy]);
                 expense.splitters.forEach(function (user) {
                     DB.addNewDutchData([transactionId, expense.date, expense.perhead, user]);
+                    DB.updateSettlement("debit", user, expense.perhead);
                 });
+                
+                DB.updateSettlement("credit", expense.paidBy, expense.amount);
                 updateExpenses();
             }, function (err) {});
         }

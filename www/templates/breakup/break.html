@@ -1,0 +1,57 @@
+<ion-view>
+
+    <ion-header-bar class="bar bar-header item-input-inset">
+    </ion-header-bar>
+
+    <ion-content>
+        <a class="item noBorder dashlist item-divider">
+            <div class="row">
+                <div class="col-25 bree">
+                    <center>User</center>
+                </div>
+                <div class="col-25 rob_light">
+                    <center>Credit</center>
+                </div>
+                <div class="col-25 rob_light">
+                    <center>Debit</center>
+                </div>
+                <div class="col-25 rob_light">
+                    <center></center>
+                </div>
+            </div>
+        </a>
+        <ion-list>
+            <div ng-repeat="user in users">
+                <ion-item class="row item-stable" ng-click="toggleGroup(user)" ng-class="{active: isGroupShown(user)}">
+                        <div class="col-25 bree">
+                            <center>{{ user.username }}</center>
+                        </div>
+                        <div class="col-25 bar-balanced">
+                            <center>{{ user.credit }}</center>
+                        </div>
+                        <div class="col-25 rob_light">
+                            <center>{{ user.debit }}</center>
+                        </div>
+                        <div class="col-25 rob_light">
+                            <center>
+                                <button class="button button-assertive" ng-click="settlePayment(user)" ng-show="user.debit!=0">Settle</button>
+                            </center>
+                        </div>
+                </ion-item>
+                <ion-item class="item-accordion" ng-show="isGroupShown(user)" ng-repeat="expense in expenses[user.username]" ng-click="openBreakup(expense)">
+                    <div class="bree">
+                        {{ expense.transactiondate }}
+                    </div>
+                    <div class="row rob_light">
+                        <div class="col-50">
+                            <strong>Location : </strong>{{ expense.location }}
+                        </div>
+                        <div class="col-50">
+                            <strong>Amount: {{expense.amount}}</strong>
+                        </div>
+                    </div>
+                </ion-item>
+            </div>
+      </ion-list>
+    </ion-content>
+</ion-view>

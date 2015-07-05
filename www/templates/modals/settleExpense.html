@@ -1,0 +1,42 @@
+<ion-modal-view>
+    <ion-header-bar class="bar bar-stable noBorder">
+        <button class="button button-clear button-dark button-large ion-icon ion-android-close" ng-click="closeModal()"></button>
+        <h1 class="title bree">Settle Expense</h1>
+        <button class="button button-clear button-dark button-large" ng-click="settleFinish()">Settle</button>
+    </ion-header-bar>
+    <ion-content>
+        <a class="item noBorder dashlist item-divider">
+            <div class="row">
+                <div class="col-33 bree">
+                    <center>Pay To</center>
+                </div>
+                <div class="col-33 rob_light">
+                    <center>Amount</center>
+                </div>
+                <div class="col-34 rob_light">
+                    <center></center>
+                </div>
+            </div>
+        </a>
+        <ion-list>
+            <ion-item ng-repeat="settle in settleData"class="item-thumbnail-left">
+                <div class="row">
+                    <div class="col-33 bree">
+                        <center>{{settle.payTo}}</center>
+                    </div>
+                    <div class="col-33 rob_light">
+                        <center>{{settle.amount}}</center>
+                    </div>
+                    <div class="col-34 rob_light">
+                        <center>
+                            <label class="checkbox">
+                               <input type="checkbox" ng-model="isChecked" ng-change="addSettlement(isChecked, settle)">
+                            </label>
+                            
+                        </center>
+                    </div>
+                </div>
+            </ion-item>
+        </ion-list>
+    </ion-content>
+</ion-modal-view>

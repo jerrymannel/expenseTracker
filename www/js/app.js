@@ -52,12 +52,23 @@ var state_settings = {
     }
 };
 
+var state_breakup = {
+    url: "/breakup",
+    views: {
+        'breakup': {
+            templateUrl: "templates/breakup/break.html",
+            controller: 'BreakCtrl'
+        }
+    }
+};
+
 
 app.config(function ($stateProvider, $urlRouterProvider) {
     $stateProvider
         .state('tab', state_index)
         .state('tab.dash', state_dash)
         .state('tab.settings', state_settings)
+        .state('tab.breakup', state_breakup)
     $urlRouterProvider.otherwise('/tab/dash');
 //    $urlRouterProvider.otherwise('/tab/settings');
 
