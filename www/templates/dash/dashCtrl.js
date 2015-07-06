@@ -121,7 +121,7 @@ app.controller('DashCtrl', function ($scope, $ionicModal, $ionicPopup, DB) {
                 if (data == expense.id) {
                     DB.removeDutchData(expense.id);
                     expense.splitters.forEach(function (user) {
-                        DB.addNewDutchData([expense.id, expense.date, expense.perhead, user]);
+                        DB.addNewDutchData([expense.id, expense.date, expense.perhead, user, false]);
                     });
                 }
             }, function (e) {});
@@ -132,13 +132,15 @@ app.controller('DashCtrl', function ($scope, $ionicModal, $ionicPopup, DB) {
                     $scope.amount = parseInt($scope.amount) + parseInt(expense.amount);
             });
             DB.addNewExpense(expense).then(function (transactionId) {
-                DB.addNewDutchData([transactionId, expense.date, expense.perhead, expense.paidBy]);
+                DB.addNewDutchData([transactionId, expense.date, expense.perhead, expense.paidBy, false]);
                 expense.splitters.forEach(function (user) {
-                    DB.addNewDutchData([transactionId, expense.date, expense.perhead, user]);
+                    DB.addNewDutchData([transactionId, expense.date, expense.perhead, user, false]);
                     DB.updateSettlement("debit", user, expense.perhead);
                 });
                 
-                DB.updateSettlement("credit", expense.paidBy, expense.amount);
+                var length = expense.splitters.length + 1;
+                var creditAmount = expense.amount - expense.amount/length;
+                DB.updateSettlement("credit", expense.paidBy, creditAmount);
                 updateExpenses();
             }, function (err) {});
         }
