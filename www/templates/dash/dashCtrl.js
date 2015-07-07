@@ -1,6 +1,6 @@
 app.controller('DashCtrl', function ($scope, $ionicModal, $ionicPopup, DB) {
 
-
+    $scope.amount = "";
     $scope.expenses = [];
     var userList = [];
 
@@ -127,21 +127,28 @@ app.controller('DashCtrl', function ($scope, $ionicModal, $ionicPopup, DB) {
             }, function (e) {});
 
         } else {
-            DB.creditUpdate(expense.paidBy, expense.amount).then(function (d) {
+            var length = expense.splitters.length + 1;
+            var creditAmount = parseInt(expense.amount - expense.amount/length);
+            
+            DB.creditUpdate(expense.paidBy, creditAmount).then(function (d) {
                 if (DB.getRootUser() === expense.paidBy)
-                    $scope.amount = parseInt($scope.amount) + parseInt(expense.amount);
+                    $scope.amount = parseInt($scope.amount) + parseInt(creditAmount);
             });
             DB.addNewExpense(expense).then(function (transactionId) {
                 DB.addNewDutchData([transactionId, expense.date, expense.perhead, expense.paidBy, false]);
                 expense.splitters.forEach(function (user) {
                     DB.addNewDutchData([transactionId, expense.date, expense.perhead, user, false]);
                     DB.updateSettlement("debit", user, expense.perhead);
+                    if (DB.getRootUser() === user){
+                        $scope.amount = parseInt($scope.amount) - parseInt(expense.perhead);
+                        console.log("User " + user + " Amt "+ $scope.amount);
+                        DB.userCreditUpdate(user, $scope.amount);
+                    }
                 });
                 
-                var length = expense.splitters.length + 1;
-                var creditAmount = expense.amount - expense.amount/length;
                 DB.updateSettlement("credit", expense.paidBy, creditAmount);
                 updateExpenses();
+                updateAmount();
             }, function (err) {});
         }
         $scope.modal.hide();

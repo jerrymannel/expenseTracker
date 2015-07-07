@@ -148,6 +148,19 @@ app.factory('DB', function ($q, $rootScope, $cordovaSQLite, Toast, $window) {
         });
         return defer.promise;
     }
+    
+    var userCreditUpdate = function (userName, amount) {
+        var defer = $q.defer();
+        var statement = "UPDATE OR FAIL user_table SET credit = '" + amount + "' WHERE userName = '" + userName + "'";
+        $cordovaSQLite.execute(db, statement).then(function (d) {
+            console.log("User credit updated");
+            defer.resolve();
+        }, function (e) {
+            catchError(e);
+            defer.reject();
+        });
+        return defer.promise;
+    }
 
     var getExpenses = function (transactionId) {
         var defer = $q.defer();
@@ -532,6 +545,7 @@ app.factory('DB', function ($q, $rootScope, $cordovaSQLite, Toast, $window) {
         addNewExpense: addNewExpense,
         updateExpense: updateExpense,
         getUserCredit: getUserCredit,
+        userCreditUpdate: userCreditUpdate,
         getExpenses: getExpenses,
         getDutchDetails: getDutchDetails,
         addNewDutchData: addNewDutchData,
