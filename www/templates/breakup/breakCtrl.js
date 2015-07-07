@@ -44,6 +44,7 @@ app.controller('BreakCtrl', function ($scope, $ionicModal, $ionicPopup, DB) {
     });
     
     $scope.closeModal = function(){
+        settlement = [];
         $scope.modal.hide();
     };
     
@@ -57,12 +58,11 @@ app.controller('BreakCtrl', function ($scope, $ionicModal, $ionicPopup, DB) {
             console.log("Error while fetching data to settle");
         });
     };
+    
     $scope.addSettlement = function(isChecked, settle){
-        if(isChecked)
-            //Show text box to edit amount and then add
+        if(isChecked){
             settlement.push(settle);
-        else{
-            //hide text box
+        }else{
             var index = settlement.indexOf(settle);
             if (index > -1) {
                 settlement.splice(index, 1);
@@ -86,8 +86,6 @@ app.controller('BreakCtrl', function ($scope, $ionicModal, $ionicPopup, DB) {
             });
             DB.updateDutch(settle.transactionId, settle.from);
         });
-        
-        settlement = [];
         $scope.closeModal();
     };
     

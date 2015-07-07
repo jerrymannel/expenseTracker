@@ -287,9 +287,9 @@ app.factory('DB', function ($q, $rootScope, $cordovaSQLite, Toast, $window) {
             }else{
                 var settle = [];
                 if(col === "credit"){
-                    settle = [user, 0, amount];
+                    settle = [user, 0, parseInt(amount)];
                 }else{
-                    settle = [user, amount, 0]; 
+                    settle = [user, parseInt(amount), 0]; 
                 }
                 addSettlementData(settle);
             }
